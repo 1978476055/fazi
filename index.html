@@ -37,8 +37,10 @@
                 <input type="text" class="form-control" v-model="desc" @keyup.enter.exact="fn">
             </div>
             <button type="button" class="btn btn-primary" @click="fn">添加</button>
-            <input type="text" class="form-control" v-model="num">
-            <button type="button" class="btn btn-primary" @click="chx(num)">查找</button>
+            <div class="form-group">
+                <label>描述</label>
+                <input type="text" class="form-control" v-model="num" @keyup="chx">
+            </div>
         </form>
 
         <table class="table table-striped table-bordered">
@@ -55,11 +57,11 @@
                 <tr v-if="kis.length==0">
                     <td colspan="5">请输入一点内容</td>
                 </tr>
-                <tr v-for="(item,i) in kis" :key="item.id" v-else :style="{backgroundColor: i%2==0?'#f1f1f1':'white'}">
+                <tr v-for="item,i in chx()" :key="item.id" v-else :style="{backgroundColor: i%2==0?'#f1f1f1':'white'}">
                     <td>{{i+1}}</td>
                     <td>{{item.name}}</td>
                     <td>{{item.desc}}</td>
-                    <td>{{item.date | myFilter}}</td>
+                    <td>{{item.time | myFilter}}</td>
                     <td><a href="#" @click.prevent="del(item.id)">删除</a></td>
                 </tr>
             </tbody>
@@ -91,19 +93,24 @@
             },
             // 函数方法
             methods:{
+                // 过滤器
                 fazi(){
                     axios.get("/getBrandList").then(res=>{
                     this.kis=res.data.list;
                 })
                 },
                 fn(){
+                    // 验证是否为空
                     if((!this.name.trim()) || (!this.desc.trim())) return alert("小老弟你的输入不完整");
+
                     // this.kis.push({
                     //     id:this.kis.length,
                     //     name:this.name,
                     //     desc:this.desc,
                     //     date:new Date().getTime()
                     // });
+
+                    // 添加车辆信息
                     axios.post("/addBrand",{
                         name : this.name,
                         desc : this.desc,
@@ -118,6 +125,8 @@
                 del(idx){
                     // let idx =this.kis.findIndex((item)=>item.id===id);
                     // this.kis.splice(idx,1)
+
+                    // 删除车辆数据
                     axios.get("/deleteBrand",{
                         params:{
                             id:idx
@@ -127,17 +136,20 @@
                         this.fazi()
                     })
                 },
-                chx(ids){
-                    axios.get("/getBrandInfo?",{
-                        params:{
-                            id:idx
-                        }
-                    }).then(res=>{
-                        this.kis.length=0;
-                        this.kis.push(res.data.list)
-                        
-                    })
+                chx(){
+                    return this.kis.filter((item)=>item.name.includes(this.num))
                 }
+                // chx(ids){
+                //     axios.get("/getBrandInfo?",{
+                //         params:{
+                //             id:idx
+                //         }
+                //     }).then(res=>{
+                //         this.kis.length=0;
+                //         this.kis.push(res.data.list)
+                        
+                //     })
+                // }
             }
 
 
