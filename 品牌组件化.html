@@ -66,6 +66,8 @@
                     // 为空验证
                     if ((!this.name.trim()) || (!this.desc.trim())) return alert("数据不完整")
                     this.$emit("adds",this.name,this.desc)
+                    this.name = "",
+                    this.desc = ""
                 }
             },
             watch:{
@@ -139,17 +141,13 @@
 
                 },
                 async add(name,desc) {
-                    
                     // 添加内容
                     await axios.post("/addBrand", {
                         name,
                         desc,
                         time: new Date().getTime()
-                    }).then(res => {
-                        this.fn()
                     })
-                    this.name = "",
-                        this.desc = ""
+                    this.fn()
                 },
                 async del(id) {
                     await axios.get("/deleteBrand", {
@@ -157,6 +155,8 @@
                             id
                         }
                     })
+                    this.fn()
+
                 }
             },
             computed: {
