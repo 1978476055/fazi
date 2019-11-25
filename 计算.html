@@ -38,7 +38,7 @@
             </div>
             <button type="button" class="btn btn-primary" @click="add">添加</button>
             <div class="form-group">
-                <label>描述</label>
+                <label>查找</label>
                 <input type="text" class="form-control" v-model="key">
             </div>
         </form>
@@ -86,25 +86,35 @@
                 this.fn()
            },
            methods:{
-                fn(){
-                    axios.get("/getBrandList").then((res) => {
+               
+                async fn(){
+                    try {
+                      let res = await axios.get("/getBrandList");
                         this.datalist = res.data.list
-                    })
+                    
+                    } catch (error) {
+                      console.log(error);
+                    }
+                    
                 },
-                add(){
+                async add(){
+                    // 为空验证
                     if ((!this.name.trim()) ||(!this.desc.trim())) return alert("数据不完整")
-                    axios.post("/addBrand",{
+                    // 添加内容
+                    await axios.post("/addBrand",{
                         name :this.name,
                         desc : this.desc,
                         time : new Date().getTime()
                     }).then(res=>{
                         this.fn()
                     })
+                    this.name="",
+                    this.desc=""
                 },
-                del(ids){
-                    axios.get("/deleteBrand",{
+                async del(id){
+                    await axios.get("/deleteBrand",{
                         params:{
-                            id:ids
+                            id
                         }
                     })
                 }
@@ -116,7 +126,11 @@
             },
             computed:{
                 full(){
-                    return this.datalist.filter((item)=>item.name.includes(this.key))
+                    return this.datalist.filter((item)=>{
+                       return item.name.includes(this.key)
+                    }
+                    
+                    )
                 }
             }
        })
